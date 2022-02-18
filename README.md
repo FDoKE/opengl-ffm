@@ -16,6 +16,8 @@ Java 18
 java --enable-native-access=opengl.ffm --module-path opengl-ffm-0.1-SNAPSHOT.jar --module opengl.ffm/ru.fdoke.ffm.opengl.App ../dll/
 ```
 
+![Exmaple](https://github.com/FDoKE/opengl-ffm/blob/master/result.png?raw=true)
+
 # Description
 
 With new FFM Api in Java 18 there are a lot of possibilities of direct usage of native libraries. This project uses
