@@ -3,10 +3,14 @@ package ru.fdoke.ffm.opengl.api.opengl;
 import jdk.incubator.foreign.*;
 
 import java.lang.invoke.MethodHandle;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class OpenglApi {
     private final CLinker cLinker = CLinker.systemCLinker();
+
+    private final Map<String, MethodHandle> methodHandles = new HashMap<>();
 
     public void glClear(int mask) {
         try {
@@ -29,7 +33,7 @@ public class OpenglApi {
 
     public void glGenBuffers(int target, IntReference vbo) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glGenBuffers", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
+            MethodHandle methodHandle = getMethodHandle("glGenBuffers", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
             methodHandle.invoke(target, vbo.getAddress());
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -38,7 +42,7 @@ public class OpenglApi {
 
     public void glBindBuffer(int target, int vbo) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glBindBuffer", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
+            MethodHandle methodHandle = getMethodHandle("glBindBuffer", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
             methodHandle.invoke(target, vbo);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -47,7 +51,7 @@ public class OpenglApi {
 
     public void glBufferData(int target, long size, MemorySegment data, int usage) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glBufferData", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
+            MethodHandle methodHandle = getMethodHandle("glBufferData", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
             methodHandle.invoke(target, size, data, usage);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -56,7 +60,7 @@ public class OpenglApi {
 
     public int glCreateShader(int shaderType) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glCreateShader", FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
+            MethodHandle methodHandle = getMethodHandle("glCreateShader", FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
             return (int) methodHandle.invoke(shaderType);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -65,7 +69,7 @@ public class OpenglApi {
 
     public void glShaderSource(int shader, int count, String source, MemoryAddress length) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glShaderSource", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
+            MethodHandle methodHandle = getMethodHandle("glShaderSource", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
             MemorySegment arrayOfSourcesMemorySegment = SegmentAllocator.implicitAllocator().allocateArray(ValueLayout.ADDRESS, 1);
             MemorySegment sourceMemorySegment = SegmentAllocator.implicitAllocator().allocateUtf8String(source);
             arrayOfSourcesMemorySegment.set(ValueLayout.ADDRESS, 0, sourceMemorySegment);
@@ -77,7 +81,7 @@ public class OpenglApi {
 
     public void glCompileShader(int shader) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glCompileShader", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
+            MethodHandle methodHandle = getMethodHandle("glCompileShader", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
             methodHandle.invoke(shader);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -86,7 +90,7 @@ public class OpenglApi {
 
     public void glGetShaderiv(int shader, int pname, IntReference params) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glGetShaderiv", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
+            MethodHandle methodHandle = getMethodHandle("glGetShaderiv", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
             methodHandle.invoke(shader, pname, params.getAddress());
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -95,7 +99,7 @@ public class OpenglApi {
 
     public int glCreateProgram() {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glCreateProgram", FunctionDescriptor.of(ValueLayout.JAVA_INT));
+            MethodHandle methodHandle = getMethodHandle("glCreateProgram", FunctionDescriptor.of(ValueLayout.JAVA_INT));
             return (int) methodHandle.invoke();
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -104,7 +108,7 @@ public class OpenglApi {
 
     public void glAttachShader(int program, int shader) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glAttachShader", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
+            MethodHandle methodHandle = getMethodHandle("glAttachShader", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
             methodHandle.invoke(program, shader);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -113,7 +117,7 @@ public class OpenglApi {
 
     public void glLinkProgram(int program) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glLinkProgram", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
+            MethodHandle methodHandle = getMethodHandle("glLinkProgram", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
             methodHandle.invoke(program);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -122,7 +126,7 @@ public class OpenglApi {
 
     public void glGetProgramiv(int program, int pname, IntReference params) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glGetProgramiv", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
+            MethodHandle methodHandle = getMethodHandle("glGetProgramiv", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
             methodHandle.invoke(program, pname, params.getAddress());
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -131,7 +135,7 @@ public class OpenglApi {
 
     public void glGetProgramInfoLog(int program, int maxLength, MemoryAddress length, MemorySegment infoLog) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glGetProgramInfoLog", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
+            MethodHandle methodHandle = getMethodHandle("glGetProgramInfoLog", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
             methodHandle.invoke(program, maxLength, length, infoLog);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -140,7 +144,7 @@ public class OpenglApi {
 
     public void glUseProgram(int program) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glUseProgram", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
+            MethodHandle methodHandle = getMethodHandle("glUseProgram", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
             methodHandle.invoke(program);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -149,7 +153,7 @@ public class OpenglApi {
 
     public void glVertexAttribPointer(int index, int size, int type, int normalized, int stride, MemoryAddress pointer) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glVertexAttribPointer", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
+            MethodHandle methodHandle = getMethodHandle("glVertexAttribPointer", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
             methodHandle.invoke(index, size, type, normalized, stride, pointer);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -158,7 +162,7 @@ public class OpenglApi {
 
     public void glEnableVertexAttribArray(int index) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glEnableVertexAttribArray", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
+            MethodHandle methodHandle = getMethodHandle("glEnableVertexAttribArray", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
             methodHandle.invoke(index);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -167,7 +171,7 @@ public class OpenglApi {
 
     public void glGenVertexArrays(int n, IntReference arrays) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glGenVertexArrays", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
+            MethodHandle methodHandle = getMethodHandle("glGenVertexArrays", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
             methodHandle.invoke(n, arrays.getAddress());
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -176,7 +180,7 @@ public class OpenglApi {
 
     public void glBindVertexArray(int vao) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glBindVertexArray", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
+            MethodHandle methodHandle = getMethodHandle("glBindVertexArray", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
             methodHandle.invoke(vao);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
@@ -185,26 +189,41 @@ public class OpenglApi {
 
     public void glDrawArrays(int mode, int first, int count) {
         try {
-            MethodHandle methodHandle = getExtensionMethodHandle("glDrawArrays", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
+            MethodHandle methodHandle = getMethodHandle("glDrawArrays", FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
             methodHandle.invoke(mode, first, count);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
         }
     }
 
-    private MethodHandle getExtensionMethodHandle(String funcName, FunctionDescriptor descriptor) throws Throwable {
-        // Some opengl functions are not in lookup table (extensions) so we need to call wglGetProcAddress to pointer to that extension function
-        MethodHandle methodHandle = getMethodHandle("wglGetProcAddress", FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-        MemorySegment wglGetProcAddress = SegmentAllocator.implicitAllocator().allocateUtf8String(funcName);
-        MemoryAddress address = (MemoryAddress) methodHandle.invoke(wglGetProcAddress);
+    private MethodHandle getMethodHandle(String methodName, FunctionDescriptor descriptor) throws Throwable {
+        MethodHandle cachedHandle = methodHandles.get(methodName);
+        if (cachedHandle != null) {
+            return cachedHandle;
+        }
+
+        // trying to find method handle by loaderLookup
+        Optional<NativeSymbol> directMethodAddress = SymbolLookup.loaderLookup().lookup(methodName);
+        if (directMethodAddress.isPresent()) {
+            MethodHandle methodHandle = cLinker.downcallHandle(directMethodAddress.get(), descriptor);
+            methodHandles.put(methodName, methodHandle);
+            return methodHandle;
+        }
+
+        // Some opengl functions are not in lookup table (extensions) so we need to call wglGetProcAddress to get pointer to needed function
+        MethodHandle extensionMethodHandle = getMethodHandle("wglGetProcAddress", FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
+        MemorySegment extensionMethodNameMemorySegment = SegmentAllocator.implicitAllocator().allocateUtf8String(methodName);
+        MemoryAddress address = (MemoryAddress) extensionMethodHandle.invoke(extensionMethodNameMemorySegment);
+
+        if (address.equals(MemoryAddress.NULL)) {
+            throw new IllegalArgumentException("Could not find method: " + methodName);
+        }
+
 
         // making call to retrieved function address
-        NativeSymbol glGenBuffersSymbol = NativeSymbol.ofAddress(funcName, address, ResourceScope.globalScope());
-        return cLinker.downcallHandle(glGenBuffersSymbol, descriptor);
-    }
-
-    private MethodHandle getMethodHandle(String funcName, FunctionDescriptor function) {
-        Optional<NativeSymbol> testMethod = SymbolLookup.loaderLookup().lookup(funcName);
-        return cLinker.downcallHandle(testMethod.get(), function);
+        NativeSymbol methodAddress = NativeSymbol.ofAddress(methodName, address, ResourceScope.globalScope());
+        MethodHandle methodHandle = cLinker.downcallHandle(methodAddress, descriptor);
+        methodHandles.put(methodName, methodHandle);
+        return methodHandle;
     }
 }

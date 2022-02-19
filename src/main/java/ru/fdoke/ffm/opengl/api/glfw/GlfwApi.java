@@ -3,6 +3,8 @@ package ru.fdoke.ffm.opengl.api.glfw;
 import jdk.incubator.foreign.*;
 
 import java.lang.invoke.MethodHandle;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class GlfwApi {
@@ -10,6 +12,8 @@ public class GlfwApi {
 
     public static final int GLFW_CONTEXT_VERSION_MAJOR = 0x00022002;
     public static final int GLFW_CONTEXT_VERSION_MINOR = 0x00022003;
+
+    private final Map<String, MethodHandle> methodHandles = new HashMap<>();
 
     public boolean glfwInit() {
         try {
@@ -86,8 +90,19 @@ public class GlfwApi {
         }
     }
 
-    private MethodHandle getMethodHandle(String glfwTerminate, FunctionDescriptor function) {
-        Optional<NativeSymbol> testMethod = SymbolLookup.loaderLookup().lookup(glfwTerminate);
-        return cLinker.downcallHandle(testMethod.get(), function);
+    private MethodHandle getMethodHandle(String methodName, FunctionDescriptor descriptor) {
+        MethodHandle cachedMethodHandle = methodHandles.get(methodName);
+        if (cachedMethodHandle != null) {
+            return cachedMethodHandle;
+        }
+
+        Optional<NativeSymbol> methodAddress = SymbolLookup.loaderLookup().lookup(methodName);
+        if (methodAddress.isEmpty()) {
+            throw new IllegalArgumentException("Could not find method: " + methodName);
+        }
+
+        MethodHandle methodHandle = cLinker.downcallHandle(methodAddress.get(), descriptor);
+        methodHandles.put(methodName, methodHandle);
+        return methodHandle;
     }
 }

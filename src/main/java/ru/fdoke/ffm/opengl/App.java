@@ -76,11 +76,10 @@ public class App {
             openglApi.glEnableVertexAttribArray(0);
 
             int shaderProgram = createShaderProgram();
+            openglApi.glUseProgram(shaderProgram);
 
             while (glfwApi.glfwWindowShouldClose(window) == 0) {
                 openglApi.glClear(GL_COLOR_BUFFER_BIT);
-                openglApi.glUseProgram(shaderProgram);
-                openglApi.glBindVertexArray(vao);
                 openglApi.glDrawArrays(GL_TRIANGLES, 0, 3);
 
                 glfwApi.glfwSwapBuffers(window);
