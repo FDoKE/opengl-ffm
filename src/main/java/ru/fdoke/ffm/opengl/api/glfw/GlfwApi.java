@@ -1,14 +1,17 @@
 package ru.fdoke.ffm.opengl.api.glfw;
 
-import jdk.incubator.foreign.*;
 
+import ru.fdoke.ffm.opengl.api.calling.Memory;
+
+import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class GlfwApi {
-    private final CLinker cLinker = CLinker.systemCLinker();
+    private final Linker linker = Linker.nativeLinker();
+    private final SymbolLookup lookup = SymbolLookup.loaderLookup();
 
     public static final int GLFW_CONTEXT_VERSION_MAJOR = 0x00022002;
     public static final int GLFW_CONTEXT_VERSION_MINOR = 0x00022003;
@@ -33,18 +36,18 @@ public class GlfwApi {
         }
     }
 
-    public MemoryAddress glfwCreateWindow(int width, int height, String title, MemoryAddress monitor, MemoryAddress share) {
+    public MemorySegment glfwCreateWindow(int width, int height, String title, MemorySegment monitor, MemorySegment share) {
         try {
             MethodHandle methodHandle = getMethodHandle("glfwCreateWindow",
                     FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-            MemorySegment str = SegmentAllocator.implicitAllocator().allocateUtf8String(title);
-            return (MemoryAddress) methodHandle.invoke(width, height, str, monitor, share);
+            MemorySegment str = Memory.ALLOCATOR.allocateFrom(title);
+            return (MemorySegment) methodHandle.invoke(width, height, str, monitor, share);
         } catch (Throwable e) {
             throw new IllegalStateException("Invocation failed", e);
         }
     }
 
-    public void glfwMakeContextCurrent(MemoryAddress window) {
+    public void glfwMakeContextCurrent(MemorySegment window) {
         try {
             MethodHandle methodHandle = getMethodHandle("glfwMakeContextCurrent", FunctionDescriptor.ofVoid(ValueLayout.ADDRESS));
             methodHandle.invoke(window);
@@ -53,7 +56,7 @@ public class GlfwApi {
         }
     }
 
-    public int glfwWindowShouldClose(MemoryAddress window) {
+    public int glfwWindowShouldClose(MemorySegment window) {
         try {
             MethodHandle methodHandle = getMethodHandle("glfwWindowShouldClose",
                     FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
@@ -63,7 +66,7 @@ public class GlfwApi {
         }
     }
 
-    public void glfwSwapBuffers(MemoryAddress window) {
+    public void glfwSwapBuffers(MemorySegment window) {
         try {
             MethodHandle methodHandle = getMethodHandle("glfwSwapBuffers", FunctionDescriptor.ofVoid(ValueLayout.ADDRESS));
             methodHandle.invoke(window);
@@ -90,18 +93,18 @@ public class GlfwApi {
         }
     }
 
-    private MethodHandle getMethodHandle(String methodName, FunctionDescriptor descriptor) {
+    private MethodHandle getMethodHandle(String methodName, FunctionDescriptor descriptorSupplier) {
         MethodHandle cachedMethodHandle = methodHandles.get(methodName);
         if (cachedMethodHandle != null) {
             return cachedMethodHandle;
         }
 
-        Optional<NativeSymbol> methodAddress = SymbolLookup.loaderLookup().lookup(methodName);
+        Optional<MemorySegment> methodAddress = lookup.find(methodName);
         if (methodAddress.isEmpty()) {
             throw new IllegalArgumentException("Could not find method: " + methodName);
         }
 
-        MethodHandle methodHandle = cLinker.downcallHandle(methodAddress.get(), descriptor);
+        MethodHandle methodHandle = linker.downcallHandle(methodAddress.get(), descriptorSupplier);
         methodHandles.put(methodName, methodHandle);
         return methodHandle;
     }

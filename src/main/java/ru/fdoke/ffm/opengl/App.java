@@ -1,15 +1,14 @@
 package ru.fdoke.ffm.opengl;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.SegmentAllocator;
-import jdk.incubator.foreign.ValueLayout;
+import ru.fdoke.ffm.opengl.api.calling.Memory;
 import ru.fdoke.ffm.opengl.api.glfw.GlfwApi;
 import ru.fdoke.ffm.opengl.api.opengl.IntReference;
 import ru.fdoke.ffm.opengl.api.opengl.OpenglApi;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -40,12 +39,12 @@ public class App {
         }
         System.out.println("Glfw init succeed");
 
-        try {
+        try (Memory.ALLOCATOR) {
             glfwApi.glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwApi.glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
-            MemoryAddress window = glfwApi.glfwCreateWindow(640, 480, "Hello World", MemoryAddress.NULL, MemoryAddress.NULL);
-            if (window.equals(MemoryAddress.NULL)) {
+            MemorySegment window = glfwApi.glfwCreateWindow(640, 480, "Hello World", MemorySegment.NULL, MemorySegment.NULL);
+            if (window.equals(MemorySegment.NULL)) {
                 throw new IllegalStateException("Could not init window");
             }
             System.out.println("Glfw window created");
@@ -72,7 +71,7 @@ public class App {
             openglApi.glBindBuffer(GL_ARRAY_BUFFER, vbo);
             openglApi.glBufferData(GL_ARRAY_BUFFER, vertices.byteSize(), vertices, GL_STATIC_DRAW);
 
-            openglApi.glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * 4, MemoryAddress.NULL);
+            openglApi.glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * 4, MemorySegment.NULL);
             openglApi.glEnableVertexAttribArray(0);
 
             int shaderProgram = createShaderProgram();
@@ -101,10 +100,10 @@ public class App {
         IntReference shaderProgramLinkSuccess = new IntReference();
         openglApi.glGetProgramiv(shaderProgram, GL_LINK_STATUS, shaderProgramLinkSuccess);
         if (shaderProgramLinkSuccess.getValue() == 0) {
-            MemorySegment infoLog = SegmentAllocator.implicitAllocator().allocate(512);
+            MemorySegment infoLog = Memory.ALLOCATOR.allocate(512);
             infoLog.set(ValueLayout.JAVA_BYTE, 0, (byte) 10);
-            openglApi.glGetProgramInfoLog(shaderProgram, 512, MemoryAddress.NULL, infoLog);
-            throw new IllegalStateException("Could not link shader program: " + infoLog.getUtf8String(0));
+            openglApi.glGetProgramInfoLog(shaderProgram, 512, MemorySegment.NULL, infoLog);
+            throw new IllegalStateException("Could not link shader program: " + infoLog.getString(0));
         }
 
         System.out.println("Shader program linked as: " + shaderProgram);
@@ -115,7 +114,7 @@ public class App {
         int shaderNum = openglApi.glCreateShader(shaderType);
         try {
             String shaderSource = new String(getClass().getClassLoader().getResourceAsStream(shaderResource).readAllBytes(), StandardCharsets.UTF_8);
-            openglApi.glShaderSource(shaderNum, 1, shaderSource, MemoryAddress.NULL);
+            openglApi.glShaderSource(shaderNum, 1, shaderSource, MemorySegment.NULL);
         } catch (IOException e) {
             throw new IllegalArgumentException("Could not load shader: " + shaderResource);
         }
@@ -138,6 +137,6 @@ public class App {
                 0.5f, -0.5f, 0.0f,
                 0.0f, 0.5f, 0.0f
         };
-        return SegmentAllocator.implicitAllocator().allocateArray(ValueLayout.JAVA_FLOAT, vertices);
+        return Memory.ALLOCATOR.allocateFrom(ValueLayout.JAVA_FLOAT, vertices);
     }
 }

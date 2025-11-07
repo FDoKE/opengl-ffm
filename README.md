@@ -1,6 +1,6 @@
 # Prerequisites
 
-Java 18
+Java 22
 
 # Build notice
 
@@ -20,11 +20,11 @@ java --enable-native-access=opengl.ffm --module-path opengl-ffm-0.1-SNAPSHOT.jar
 
 # Description
 
-With new FFM Api in Java 18 there are a lot of possibilities of direct usage of native libraries. This project uses
+With new FFM Api in Java 22 there are a lot of possibilities of direct usage of native libraries. This project uses
 OPENGL/GLFW dll's to open a window and draw a triangle. It's raw and should not be concerned as the proper way of using
-it (but I will try to improve it).
+it.
 
-## Caution
+## Changelog
 
-The FFM Api feature is in incubator state, and I don't know when it will make to release, so this code probably will
-break one day.
+- ### 07.11.2025
+    - Updated code to finalized FFM api in Java 22.

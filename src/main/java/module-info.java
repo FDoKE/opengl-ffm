@@ -1,3 +1,3 @@
 module opengl.ffm {
-    requires jdk.incubator.foreign;
+    requires java.base;
 }

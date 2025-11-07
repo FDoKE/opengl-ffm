@@ -1,25 +1,22 @@
 package ru.fdoke.ffm.opengl.api.opengl;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.SegmentAllocator;
-import jdk.incubator.foreign.ValueLayout;
+import ru.fdoke.ffm.opengl.api.calling.Memory;
+
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 
 public class IntReference {
-    private MemoryAddress address;
+    private final MemorySegment memorySegment;
 
     public IntReference() {
-        address = SegmentAllocator.implicitAllocator().allocate(ValueLayout.JAVA_INT, 0).address();
+        memorySegment = Memory.ALLOCATOR.allocate(ValueLayout.JAVA_INT, 1);
     }
 
-    public void setValue(int value) {
-        this.address.set(ValueLayout.JAVA_INT, 0, value);
-    }
-
-    public MemoryAddress getAddress() {
-        return address;
+    public MemorySegment getMemorySegment() {
+        return memorySegment;
     }
 
     public int getValue() {
-        return address.get(ValueLayout.JAVA_INT, 0);
+        return memorySegment.get(ValueLayout.JAVA_INT, 0);
     }
 }
